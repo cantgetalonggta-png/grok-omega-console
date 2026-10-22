@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Grok-Omega Unified Control Console</title>
+<style>
+:root{--bg:#05080f;--p:#0c1320;--p2:#111a2b;--b:rgba(148,163,184,.16);--t:#e8eef7;--m:#8b9bb4;--c:#22d3ee;--g:#10b981;--r:#f43f5e;--a:#f59e0b;--pu:#a78bfa}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Inter,system-ui,sans-serif;background:radial-gradient(900px 500px at 0% 0%,#13203a,var(--bg));color:var(--t);min-height:100vh}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--b);background:rgba(5,8,15,.92);position:sticky;top:0;z-index:20}
+.brand{font-weight:800;letter-spacing:.02em}.brand small{display:block;font-weight:500;color:var(--m);font-size:.72rem}
+.pill{font-size:.65rem;padding:4px 8px;border-radius:999px;border:1px solid var(--b);color:var(--g);background:rgba(16,185,129,.1)}
+.nav{display:flex;flex-wrap:wrap;gap:6px}
+.nav button{background:rgba(255,255,255,.05);border:1px solid var(--b);color:var(--t);padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600;font-size:.78rem}
+.nav button.active,.nav button:hover{background:rgba(34,211,238,.15);border-color:var(--c);color:var(--c)}
+main{padding:16px 18px 40px;max-width:1200px;margin:0 auto}
+.panel{display:none;background:var(--p);border:1px solid var(--b);border-radius:14px;padding:16px}
+.panel.active{display:block}
+h2{font-size:1.05rem;margin-bottom:8px}
+h3{font-size:.88rem;margin:14px 0 8px;color:var(--c)}
+p,li{font-size:.82rem;line-height:1.5;color:var(--m)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-top:12px}
+.card{background:var(--p2);border:1px solid var(--b);border-radius:12px;padding:12px}
+.card h4{font-size:.85rem;margin-bottom:6px}
+.card a{color:var(--c);font-size:.75rem;word-break:break-all}
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--c);color:#042f2e;border:none;border-radius:8px;padding:8px 12px;font-weight:700;font-size:.78rem;cursor:pointer;text-decoration:none;margin:4px 4px 4px 0}
+.btn.sec{background:rgba(255,255,255,.07);color:var(--t);border:1px solid var(--b)}
+.btn.ok{background:var(--g);color:#052e1c}
+.status{font-family:ui-monospace,monospace;font-size:.72rem;background:#080c14;border:1px solid var(--b);border-radius:10px;padding:12px;max-height:280px;overflow:auto;white-space:pre-wrap;margin-top:10px}
+.badge{display:inline-block;font-size:.62rem;font-weight:800;padding:2px 6px;border-radius:5px;margin-right:4px}
+.b-ok{background:rgba(16,185,129,.2);color:var(--g)}.b-warn{background:rgba(245,158,11,.2);color:var(--a)}.b-live{background:rgba(34,211,238,.2);color:var(--c)}
+table{width:100%;border-collapse:collapse;font-size:.75rem;margin-top:8px}
+th,td{border:1px solid var(--b);padding:6px 8px;text-align:left}
+th{background:rgba(255,255,255,.04);color:var(--t)}
+input,textarea,select{width:100%;background:var(--p2);border:1px solid var(--b);color:var(--t);border-radius:8px;padding:8px;font-size:.8rem;margin:4px 0 10px}
+textarea{min-height:90px;font-family:ui-monospace,monospace}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.kpis{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+.kpi{background:var(--p2);border:1px solid var(--b);border-radius:10px;padding:10px 12px;min-width:110px}
+.kpi b{display:block;font-size:1.1rem;color:var(--c)}
+.kpi span{font-size:.68rem;color:var(--m)}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">GROK-OMEGA CONTROL CONSOLE<small>Unified · Omni-Injector · OpenMontage · MCP Hub · EXTRACT ALL</small></div>
+  <span class="pill" id="livePill">AUTONOMOUS BUILD ACTIVE</span>
+  <nav class="nav" id="nav"></nav>
+</header>
+<main>
+  <section class="panel active" id="tab-home">
+    <h2>Mission Control</h2>
+    <p>All modules below are wired for local/browser use. Secrets stay client-side or in your local MCP env — never posted to this static host.</p>
+    <div class="kpis">
+      <div class="kpi"><b id="kModules">8</b><span>Modules</span></div>
+      <div class="kpi"><b id="kProviders">4</b><span>LLM Providers</span></div>
+      <div class="kpi"><b id="kRepos">2</b><span>Drive Roots</span></div>
+      <div class="kpi"><b id="kLive">—</b><span>Live endpoints</span></div>
+    </div>
+    <div class="row">
+      <button class="btn" data-goto="modules">Open Modules</button>
+      <button class="btn sec" data-goto="mcp">MCP Setup</button>
+      <button class="btn sec" data-goto="inventory">Inventory</button>
+      <button class="btn ok" id="btnSelfTest">Run Self-Test</button>
+    </div>
+    <div class="status" id="consoleLog">// ready</div>
+  </section>
+
+  <section class="panel" id="tab-modules">
+    <h2>Interactive Modules</h2>
+    <div class="grid" id="moduleGrid"></div>
+  </section>
+
+  <section class="panel" id="tab-mcp">
+    <h2>MCP Connector Matrix</h2>
+    <p>Install locally, then register under Grok → Settings → Advanced → MCP Servers (Stdio).</p>
+    <h3>OpenAI-only connector</h3>
+    <pre class="status">git clone https://github.com/cantgetalonggta-png/openai-grok-mcp
+cd openai-grok-mcp && pip install -r requirements.txt
+# Command: python3
+# Args: /abs/path/openai_grok_connector.py</pre>
+    <h3>Multi-provider LLM Hub</h3>
+    <pre class="status"># Files in repo llm-mcp-hub (published this run)
+# Tools: provider_healthcheck, query_openai, query_anthropic, query_xai, query_gemini, multi_provider_consult</pre>
+    <h3>Generate MCP config snippet</h3>
+    <label>Absolute path to llm_mcp_hub.py</label>
+    <input id="mcpPath" placeholder="/Users/you/llm-mcp-hub/llm_mcp_hub.py"/>
+    <button class="btn" id="btnGenMcp">Generate JSON</button>
+    <button class="btn sec" id="btnCopyMcp">Copy</button>
+    <pre class="status" id="mcpOut">{}</pre>
+  </section>
+
+  <section class="panel" id="tab-inventory">
+    <h2>Drive & Asset Inventory</h2>
+    <table>
+      <thead><tr><th>Root</th><th>ID</th><th>Contents</th></tr></thead>
+      <tbody>
+        <tr><td>Ecosystem archive</td><td>1d48YCVzol7cG3mNPvCyFKXYnkXMLr7IL</td><td>ZIPs (OpenMontage, AI Maestro, skills, RTK/MONTAGE), dashboards, state JSON</td></tr>
+        <tr><td>EXTRACT ALL</td><td>1BJ_Dib-Y3em2f6ttt7WtbWj597va3aVn</td><td>AllFiles.zip (PDF), FAISS index, GeorgeCarlinNarration.pth, fonts, split PDFs</td></tr>
+      </tbody>
+    </table>
+    <h3>EXTRACT ALL classification</h3>
+    <div class="grid">
+      <div class="card"><h4>AllFiles.zip</h4><p>Single nested PDF (~4MB). Font note is unrelated marketing text.</p></div>
+      <div class="card"><h4>GeorgeCarlinNarration.pth + IVF index</h4><p>Voice/model assets for TTS/voice cloning pipelines (OpenMontage media layer).</p></div>
+      <div class="card"><h4>full split.pdf / Image To PDF</h4><p>Investigative document corpus — route to M-IFIE PDF distill when needed.</p></div>
+      <div class="card"><h4>Canada.otf</h4><p>Typography asset for motion/Remotion branding.</p></div>
+    </div>
+  </section>
+
+  <section class="panel" id="tab-pipeline">
+    <h2>Autonomous Pipeline Simulator</h2>
+    <p>Client-side DAG: Alpha → Beta → Gamma → Delta → Epsilon</p>
+    <button class="btn" id="btnRunPipe">Run Pass Chain</button>
+    <button class="btn sec" id="btnResetPipe">Reset</button>
+    <div class="status" id="pipeLog">// idle</div>
+  </section>
+
+  <section class="panel" id="tab-links">
+    <h2>Live Links & Repos</h2>
+    <div class="grid" id="linkGrid"></div>
+  </section>
+</main>
+<script>
+(function(){
+  const logEl = document.getElementById('consoleLog');
+  function log(m){ logEl.textContent = new Date().toISOString().slice(11,19)+'  '+m+'\n'+logEl.textContent; }
+
+  const MODULES = [
+    {name:'Omni-Injector', status:'LIVE', href:'https://raw.githack.com/cantgetalonggta-png/omni-injector/main/index.html', desc:'Client-side secret scanner, verify, inject state'},
+    {name:'OpenAI MCP', status:'REPO', href:'https://github.com/cantgetalonggta-png/openai-grok-mcp', desc:'Stdio MCP: query_openai_gpt + healthcheck'},
+    {name:'LLM MCP Hub', status:'REPO', href:'https://github.com/cantgetalonggta-png/llm-mcp-hub', desc:'OpenAI+Anthropic+xAI+Gemini multi-provider'},
+    {name:'OpenMontage Control', status:'LIVE', href:'https://raw.githack.com/cantgetalonggta-png/openmontage-control-center/main/OpenMontage_Control_Center_STANDALONE_WORKING.html', desc:'Media layer dashboard (fallback CDN if 404)'},
+    {name:'Omni-Injector GH', status:'REPO', href:'https://github.com/cantgetalonggta-png/omni-injector', desc:'Source + README'},
+    {name:'Drive Ecosystem', status:'DRIVE', href:'https://drive.google.com/drive/folders/1d48YCVzol7cG3mNPvCyFKXYnkXMLr7IL', desc:'Archive root'},
+    {name:'Drive EXTRACT ALL', status:'DRIVE', href:'https://drive.google.com/drive/folders/1BJ_Dib-Y3em2f6ttt7WtbWj597va3aVn', desc:'Voice/PDF/index extract'},
+    {name:'This Console', status:'LIVE', href:'#', desc:'Unified control plane (you are here)'}
+  ];
+
+  const LINKS = [
+    ['Omni-Injector Live','https://raw.githack.com/cantgetalonggta-png/omni-injector/main/index.html'],
+    ['Omni-Injector jsDelivr','https://cdn.jsdelivr.net/gh/cantgetalonggta-png/omni-injector@main/index.html'],
+    ['OpenAI MCP Repo','https://github.com/cantgetalonggta-png/openai-grok-mcp'],
+    ['LLM MCP Hub Repo','https://github.com/cantgetalonggta-png/llm-mcp-hub'],
+    ['Console Repo','https://github.com/cantgetalonggta-png/grok-omega-console'],
+    ['Ecosystem Drive','https://drive.google.com/drive/folders/1d48YCVzol7cG3mNPvCyFKXYnkXMLr7IL'],
+    ['EXTRACT ALL Drive','https://drive.google.com/drive/folders/1BJ_Dib-Y3em2f6ttt7WtbWj597va3aVn']
+  ];
+
+  const TABS = [
+    ['home','Home'],['modules','Modules'],['mcp','MCP'],['inventory','Inventory'],['pipeline','Pipeline'],['links','Links']
+  ];
+
+  const nav = document.getElementById('nav');
+  TABS.forEach(([id,label],i)=>{
+    const b=document.createElement('button');
+    b.textContent=label; b.dataset.tab=id; if(i===0)b.classList.add('active');
+    b.onclick=()=>showTab(id);
+    nav.appendChild(b);
+  });
+
+  function showTab(id){
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active', b.dataset.tab===id));
+    document.getElementById('tab-'+id).classList.add('active');
+    log('tab → '+id);
+  }
+  window.showTab=showTab;
+
+  document.querySelectorAll('[data-goto]').forEach(el=>el.addEventListener('click',()=>showTab(el.dataset.goto)));
+
+  const grid=document.getElementById('moduleGrid');
+  MODULES.forEach(m=>{
+    const d=document.createElement('div'); d.className='card';
+    const badge = m.status==='LIVE'?'b-ok':(m.status==='REPO'?'b-live':'b-warn');
+    d.innerHTML=`<h4>${m.name} <span class="badge ${badge}">${m.status}</span></h4><p>${m.desc}</p>
+      <a class="btn sec" href="${m.href}" target="_blank" rel="noopener">Open</a>
+      <button class="btn" data-ping="${m.href}">Health Ping</button>`;
+    grid.appendChild(d);
+  });
+
+  document.getElementById('linkGrid').innerHTML = LINKS.map(([n,u])=>
+    `<div class="card"><h4>${n}</h4><a href="${u}" target="_blank" rel="noopener">${u}</a></div>`).join('');
+
+  document.getElementById('moduleGrid').addEventListener('click', async (e)=>{
+    const btn=e.target.closest('[data-ping]'); if(!btn) return;
+    const url=btn.getAttribute('data-ping');
+    if(url==='#'){ log('ping self: OK'); return; }
+    log('ping '+url+' …');
+    try{
+      const r=await fetch(url,{method:'GET',mode:'no-cors'});
+      log('ping '+url+' → opaque/no-cors (browser) — treat as attempted');
+    }catch(err){ log('ping fail: '+err.message); }
+  });
+
+  document.getElementById('btnSelfTest').onclick=()=>{
+    let pass=0, total=0;
+    function check(name, cond){ total++; if(cond){pass++; log('PASS '+name);} else log('FAIL '+name); }
+    check('tabs', TABS.length===6);
+    check('modules', MODULES.length>=8);
+    check('nav', document.querySelectorAll('.nav button').length===6);
+    check('buttons', document.querySelectorAll('button').length>=10);
+    check('localStorage', typeof localStorage!=='undefined');
+    document.getElementById('kLive').textContent=String(MODULES.filter(m=>m.status==='LIVE').length);
+    log('SELF-TEST '+pass+'/'+total);
+    alert('Self-test: '+pass+'/'+total);
+  };
+
+  document.getElementById('btnGenMcp').onclick=()=>{
+    const path=document.getElementById('mcpPath').value.trim()||'/ABSOLUTE/PATH/llm_mcp_hub.py';
+    const cfg={mcpServers:{'llm-mcp-hub':{command:'python3',args:[path],env:{OPENAI_API_KEY:'',ANTHROPIC_API_KEY:'',XAI_API_KEY:'',GOOGLE_API_KEY:''}}}};
+    document.getElementById('mcpOut').textContent=JSON.stringify(cfg,null,2);
+    log('mcp config generated');
+  };
+  document.getElementById('btnCopyMcp').onclick=()=>{
+    navigator.clipboard.writeText(document.getElementById('mcpOut').textContent).then(()=>log('copied mcp json')).catch(e=>log(e.message));
+  };
+
+  const stages=['Alpha Ingest','Beta Map','Gamma Wire','Delta Heal','Epsilon Certify'];
+  let pipeRunning=false;
+  document.getElementById('btnRunPipe').onclick=async()=>{
+    if(pipeRunning)return; pipeRunning=true;
+    const el=document.getElementById('pipeLog'); el.textContent='// starting DAG\n';
+    for(const s of stages){
+      el.textContent += '→ '+s+' …\n';
+      await new Promise(r=>setTimeout(r,400+Math.random()*500));
+      el.textContent += '  OK '+s+'\n';
+    }
+    el.textContent += 'CERTIFIED · swarm consensus stable\n';
+    pipeRunning=false; log('pipeline complete');
+  };
+  document.getElementById('btnResetPipe').onclick=()=>{ document.getElementById('pipeLog').textContent='// idle'; log('pipeline reset'); };
+
+  document.getElementById('kLive').textContent=String(MODULES.filter(m=>m.status==='LIVE').length);
+  log('Grok-Omega console boot OK · modules='+MODULES.length);
+})();
+</script>
+</body>
+</html>
