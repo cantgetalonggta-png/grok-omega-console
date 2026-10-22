@@ -1,239 +1,293 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Grok-Omega Unified Control Console</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grok-Omega LIVE Tools</title>
 <style>
-:root{--bg:#05080f;--p:#0c1320;--p2:#111a2b;--b:rgba(148,163,184,.16);--t:#e8eef7;--m:#8b9bb4;--c:#22d3ee;--g:#10b981;--r:#f43f5e;--a:#f59e0b;--pu:#a78bfa}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:Inter,system-ui,sans-serif;background:radial-gradient(900px 500px at 0% 0%,#13203a,var(--bg));color:var(--t);min-height:100vh}
-header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--b);background:rgba(5,8,15,.92);position:sticky;top:0;z-index:20}
-.brand{font-weight:800;letter-spacing:.02em}.brand small{display:block;font-weight:500;color:var(--m);font-size:.72rem}
-.pill{font-size:.65rem;padding:4px 8px;border-radius:999px;border:1px solid var(--b);color:var(--g);background:rgba(16,185,129,.1)}
-.nav{display:flex;flex-wrap:wrap;gap:6px}
-.nav button{background:rgba(255,255,255,.05);border:1px solid var(--b);color:var(--t);padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600;font-size:.78rem}
-.nav button.active,.nav button:hover{background:rgba(34,211,238,.15);border-color:var(--c);color:var(--c)}
-main{padding:16px 18px 40px;max-width:1200px;margin:0 auto}
-.panel{display:none;background:var(--p);border:1px solid var(--b);border-radius:14px;padding:16px}
-.panel.active{display:block}
-h2{font-size:1.05rem;margin-bottom:8px}
-h3{font-size:.88rem;margin:14px 0 8px;color:var(--c)}
-p,li{font-size:.82rem;line-height:1.5;color:var(--m)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-top:12px}
-.card{background:var(--p2);border:1px solid var(--b);border-radius:12px;padding:12px}
-.card h4{font-size:.85rem;margin-bottom:6px}
-.card a{color:var(--c);font-size:.75rem;word-break:break-all}
-.btn{display:inline-flex;align-items:center;gap:6px;background:var(--c);color:#042f2e;border:none;border-radius:8px;padding:8px 12px;font-weight:700;font-size:.78rem;cursor:pointer;text-decoration:none;margin:4px 4px 4px 0}
-.btn.sec{background:rgba(255,255,255,.07);color:var(--t);border:1px solid var(--b)}
-.btn.ok{background:var(--g);color:#052e1c}
-.status{font-family:ui-monospace,monospace;font-size:.72rem;background:#080c14;border:1px solid var(--b);border-radius:10px;padding:12px;max-height:280px;overflow:auto;white-space:pre-wrap;margin-top:10px}
-.badge{display:inline-block;font-size:.62rem;font-weight:800;padding:2px 6px;border-radius:5px;margin-right:4px}
-.b-ok{background:rgba(16,185,129,.2);color:var(--g)}.b-warn{background:rgba(245,158,11,.2);color:var(--a)}.b-live{background:rgba(34,211,238,.2);color:var(--c)}
-table{width:100%;border-collapse:collapse;font-size:.75rem;margin-top:8px}
-th,td{border:1px solid var(--b);padding:6px 8px;text-align:left}
-th{background:rgba(255,255,255,.04);color:var(--t)}
-input,textarea,select{width:100%;background:var(--p2);border:1px solid var(--b);color:var(--t);border-radius:8px;padding:8px;font-size:.8rem;margin:4px 0 10px}
-textarea{min-height:90px;font-family:ui-monospace,monospace}
-.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.kpis{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
-.kpi{background:var(--p2);border:1px solid var(--b);border-radius:10px;padding:10px 12px;min-width:110px}
-.kpi b{display:block;font-size:1.1rem;color:var(--c)}
-.kpi span{font-size:.68rem;color:var(--m)}
+body{font-family:Arial,sans-serif;margin:0;background:#111;color:#eee}
+header{background:#000;padding:10px 12px;border-bottom:2px solid #0f0}
+header h1{font-size:18px;margin:0}
+header p{margin:4px 0 0;font-size:12px;color:#aaa}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;padding:8px;background:#1a1a1a;border-bottom:1px solid #333}
+.tabs button{padding:10px 14px;font-size:14px;font-weight:bold;cursor:pointer;border:1px solid #555;background:#222;color:#fff}
+.tabs button.on{background:#0a0;border-color:#0f0;color:#fff}
+.panel{display:none;padding:12px}
+.panel.on{display:block}
+table{width:100%;border-collapse:collapse;margin:8px 0}
+th,td{border:1px solid #444;padding:8px;text-align:left;font-size:13px;vertical-align:top}
+th{background:#222}
+a.btn,button.act{display:inline-block;padding:10px 14px;margin:2px;background:#0a0;color:#000;font-weight:bold;text-decoration:none;border:none;cursor:pointer;font-size:13px}
+button.act.sec{background:#06c;color:#fff}
+button.act.warn{background:#a50;color:#fff}
+button.act.bad{background:#a00;color:#fff}
+iframe{width:100%;height:75vh;border:2px solid #0f0;background:#fff}
+pre#log{background:#000;color:#0f0;padding:10px;font-size:12px;max-height:200px;overflow:auto;border:1px solid #0f0;white-space:pre-wrap}
+.ok{color:#0f0}.fail{color:#f55}.warn{color:#fa0}
+input,textarea,select{width:100%;max-width:100%;box-sizing:border-box;padding:8px;margin:4px 0 8px;background:#000;color:#eee;border:1px solid #555;font-size:13px}
+label{font-size:12px;color:#aaa;display:block;margin-top:6px}
+.row{margin:8px 0}
+#apiOut{background:#000;color:#0f0;padding:10px;min-height:80px;border:1px solid #0f0;white-space:pre-wrap;font-size:12px}
 </style>
 </head>
 <body>
 <header>
-  <div class="brand">GROK-OMEGA CONTROL CONSOLE<small>Unified · Omni-Injector · OpenMontage · MCP Hub · EXTRACT ALL</small></div>
-  <span class="pill" id="livePill">AUTONOMOUS BUILD ACTIVE</span>
-  <nav class="nav" id="nav"></nav>
+  <h1>GROK-OMEGA — LIVE TOOLS (NO SIMULATION)</h1>
+  <p>Everything here either opens a real public URL, runs real browser code, or calls a real public API. Sandbox demos removed.</p>
 </header>
-<main>
-  <section class="panel active" id="tab-home">
-    <h2>Mission Control</h2>
-    <p>All modules below are wired for local/browser use. Secrets stay client-side or in your local MCP env — never posted to this static host.</p>
-    <div class="kpis">
-      <div class="kpi"><b id="kModules">8</b><span>Modules</span></div>
-      <div class="kpi"><b id="kProviders">4</b><span>LLM Providers</span></div>
-      <div class="kpi"><b id="kRepos">2</b><span>Drive Roots</span></div>
-      <div class="kpi"><b id="kLive">—</b><span>Live endpoints</span></div>
-    </div>
-    <div class="row">
-      <button class="btn" data-goto="modules">Open Modules</button>
-      <button class="btn sec" data-goto="mcp">MCP Setup</button>
-      <button class="btn sec" data-goto="inventory">Inventory</button>
-      <button class="btn ok" id="btnSelfTest">Run Self-Test</button>
-    </div>
-    <div class="status" id="consoleLog">// ready</div>
-  </section>
 
-  <section class="panel" id="tab-modules">
-    <h2>Interactive Modules</h2>
-    <div class="grid" id="moduleGrid"></div>
-  </section>
+<div class="tabs" id="tabs">
+  <button class="on" data-p="home">1. Status / Live Check</button>
+  <button data-p="injector">2. Omni-Injector (LIVE app)</button>
+  <button data-p="apis">3. Real API Calls</button>
+  <button data-p="mcp">4. MCP Install (copy-paste real)</button>
+  <button data-p="links">5. All Live Links</button>
+</div>
 
-  <section class="panel" id="tab-mcp">
-    <h2>MCP Connector Matrix</h2>
-    <p>Install locally, then register under Grok → Settings → Advanced → MCP Servers (Stdio).</p>
-    <h3>OpenAI-only connector</h3>
-    <pre class="status">git clone https://github.com/cantgetalonggta-png/openai-grok-mcp
-cd openai-grok-mcp && pip install -r requirements.txt
-# Command: python3
-# Args: /abs/path/openai_grok_connector.py</pre>
-    <h3>Multi-provider LLM Hub</h3>
-    <pre class="status"># Files in repo llm-mcp-hub (published this run)
-# Tools: provider_healthcheck, query_openai, query_anthropic, query_xai, query_gemini, multi_provider_consult</pre>
-    <h3>Generate MCP config snippet</h3>
-    <label>Absolute path to llm_mcp_hub.py</label>
-    <input id="mcpPath" placeholder="/Users/you/llm-mcp-hub/llm_mcp_hub.py"/>
-    <button class="btn" id="btnGenMcp">Generate JSON</button>
-    <button class="btn sec" id="btnCopyMcp">Copy</button>
-    <pre class="status" id="mcpOut">{}</pre>
-  </section>
+<section class="panel on" id="p-home">
+  <h2>Live endpoint checks (real HTTP from your browser)</h2>
+  <p>Click <b>RUN ALL LIVE CHECKS</b>. These hit real public URLs.</p>
+  <button class="act" id="btnCheckAll">RUN ALL LIVE CHECKS</button>
+  <button class="act sec" id="btnClearLog">Clear log</button>
+  <table>
+    <thead><tr><th>Name</th><th>URL</th><th>Result</th><th>Action</th></tr></thead>
+    <tbody id="statusBody"></tbody>
+  </table>
+  <pre id="log">// waiting</pre>
+</section>
 
-  <section class="panel" id="tab-inventory">
-    <h2>Drive & Asset Inventory</h2>
-    <table>
-      <thead><tr><th>Root</th><th>ID</th><th>Contents</th></tr></thead>
-      <tbody>
-        <tr><td>Ecosystem archive</td><td>1d48YCVzol7cG3mNPvCyFKXYnkXMLr7IL</td><td>ZIPs (OpenMontage, AI Maestro, skills, RTK/MONTAGE), dashboards, state JSON</td></tr>
-        <tr><td>EXTRACT ALL</td><td>1BJ_Dib-Y3em2f6ttt7WtbWj597va3aVn</td><td>AllFiles.zip (PDF), FAISS index, GeorgeCarlinNarration.pth, fonts, split PDFs</td></tr>
-      </tbody>
-    </table>
-    <h3>EXTRACT ALL classification</h3>
-    <div class="grid">
-      <div class="card"><h4>AllFiles.zip</h4><p>Single nested PDF (~4MB). Font note is unrelated marketing text.</p></div>
-      <div class="card"><h4>GeorgeCarlinNarration.pth + IVF index</h4><p>Voice/model assets for TTS/voice cloning pipelines (OpenMontage media layer).</p></div>
-      <div class="card"><h4>full split.pdf / Image To PDF</h4><p>Investigative document corpus — route to M-IFIE PDF distill when needed.</p></div>
-      <div class="card"><h4>Canada.otf</h4><p>Typography asset for motion/Remotion branding.</p></div>
-    </div>
-  </section>
+<section class="panel" id="p-injector">
+  <h2>Omni-Injector — full working app (embedded)</h2>
+  <p>If embed blocked, use Open Full Window. This is the real secret scanner/injector (client-side only, as designed).</p>
+  <a class="btn" id="openInjector" href="https://raw.githack.com/cantgetalonggta-png/omni-injector/main/index.html" target="_blank" rel="noopener">OPEN FULL WINDOW</a>
+  <button class="act sec" id="reloadFrame">Reload embed</button>
+  <div class="row" style="margin-top:8px">
+    <iframe id="injFrame" title="Omni-Injector" src="https://raw.githack.com/cantgetalonggta-png/omni-injector/main/index.html"></iframe>
+  </div>
+</section>
 
-  <section class="panel" id="tab-pipeline">
-    <h2>Autonomous Pipeline Simulator</h2>
-    <p>Client-side DAG: Alpha → Beta → Gamma → Delta → Epsilon</p>
-    <button class="btn" id="btnRunPipe">Run Pass Chain</button>
-    <button class="btn sec" id="btnResetPipe">Reset</button>
-    <div class="status" id="pipeLog">// idle</div>
-  </section>
+<section class="panel" id="p-apis">
+  <h2>Real public API calls (no keys required for these probes)</h2>
+  <p>These are live internet requests from your browser. Not simulated.</p>
+  <div class="row">
+    <button class="act" data-api="httpbin">GET httpbin.org/get</button>
+    <button class="act" data-api="ip">GET ipify (your IP)</button>
+    <button class="act" data-api="github">GET GitHub API (omni-injector repo)</button>
+    <button class="act" data-api="jsdelivr">GET jsDelivr omni-injector HTML head</button>
+    <button class="act warn" data-api="xai">GET api.x.ai/v1/models (expect 401 without key = LIVE)</button>
+  </div>
+  <label>Optional: paste OpenAI key only in this browser session to test models endpoint (never uploaded to our servers — there are none)</label>
+  <input id="oaKey" type="password" placeholder="sk-... (optional, local only)" autocomplete="off">
+  <button class="act sec" data-api="openai">LIVE test OpenAI /v1/models with pasted key</button>
+  <div id="apiOut">// results appear here</div>
+</section>
 
-  <section class="panel" id="tab-links">
-    <h2>Live Links & Repos</h2>
-    <div class="grid" id="linkGrid"></div>
-  </section>
-</main>
+<section class="panel" id="p-mcp">
+  <h2>MCP servers — real install commands</h2>
+  <p>MCP cannot run inside this webpage. It runs on <b>your machine</b> and connects to Grok desktop. Below is copy-paste truth.</p>
+  <label>1) OpenAI connector</label>
+  <textarea id="mcp1" readonly rows="6">git clone https://github.com/cantgetalonggta-png/openai-grok-mcp
+cd openai-grok-mcp
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+echo "OPENAI_API_KEY=sk-YOUR_KEY" > .env
+# Grok → Settings → Advanced → MCP → Stdio
+# Command:  /FULL/PATH/openai-grok-mcp/.venv/bin/python
+# Arguments: /FULL/PATH/openai-grok-mcp/openai_grok_connector.py</textarea>
+  <button class="act sec" data-copy="mcp1">Copy</button>
+
+  <label>2) Multi-provider LLM Hub</label>
+  <textarea id="mcp2" readonly rows="7">git clone https://github.com/cantgetalonggta-png/llm-mcp-hub
+cd llm-mcp-hub
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+# fill OPENAI_API_KEY ANTHROPIC_API_KEY XAI_API_KEY GOOGLE_API_KEY
+# Command:  /FULL/PATH/llm-mcp-hub/.venv/bin/python
+# Arguments: /FULL/PATH/llm-mcp-hub/llm_mcp_hub.py</textarea>
+  <button class="act sec" data-copy="mcp2">Copy</button>
+
+  <label>3) Verify repo files exist (live GitHub raw)</label>
+  <button class="act" id="btnMcpRaw">FETCH RAW FILES NOW</button>
+  <pre id="mcpRaw" style="background:#000;color:#0f0;padding:8px;border:1px solid #0f0;white-space:pre-wrap;font-size:12px"></pre>
+</section>
+
+<section class="panel" id="p-links">
+  <h2>Every live public link</h2>
+  <table>
+    <thead><tr><th>What</th><th>URL</th><th></th></tr></thead>
+    <tbody id="linkBody"></tbody>
+  </table>
+</section>
+
 <script>
 (function(){
-  const logEl = document.getElementById('consoleLog');
-  function log(m){ logEl.textContent = new Date().toISOString().slice(11,19)+'  '+m+'\n'+logEl.textContent; }
-
-  const MODULES = [
-    {name:'Omni-Injector', status:'LIVE', href:'https://raw.githack.com/cantgetalonggta-png/omni-injector/main/index.html', desc:'Client-side secret scanner, verify, inject state'},
-    {name:'OpenAI MCP', status:'REPO', href:'https://github.com/cantgetalonggta-png/openai-grok-mcp', desc:'Stdio MCP: query_openai_gpt + healthcheck'},
-    {name:'LLM MCP Hub', status:'REPO', href:'https://github.com/cantgetalonggta-png/llm-mcp-hub', desc:'OpenAI+Anthropic+xAI+Gemini multi-provider'},
-    {name:'OpenMontage Control', status:'LIVE', href:'https://raw.githack.com/cantgetalonggta-png/openmontage-control-center/main/OpenMontage_Control_Center_STANDALONE_WORKING.html', desc:'Media layer dashboard (fallback CDN if 404)'},
-    {name:'Omni-Injector GH', status:'REPO', href:'https://github.com/cantgetalonggta-png/omni-injector', desc:'Source + README'},
-    {name:'Drive Ecosystem', status:'DRIVE', href:'https://drive.google.com/drive/folders/1d48YCVzol7cG3mNPvCyFKXYnkXMLr7IL', desc:'Archive root'},
-    {name:'Drive EXTRACT ALL', status:'DRIVE', href:'https://drive.google.com/drive/folders/1BJ_Dib-Y3em2f6ttt7WtbWj597va3aVn', desc:'Voice/PDF/index extract'},
-    {name:'This Console', status:'LIVE', href:'#', desc:'Unified control plane (you are here)'}
+  const ENDPOINTS = [
+    {name:'Omni-Injector (raw.githack)', url:'https://raw.githack.com/cantgetalonggta-png/omni-injector/main/index.html', open:true},
+    {name:'Omni-Injector (jsDelivr)', url:'https://cdn.jsdelivr.net/gh/cantgetalonggta-png/omni-injector@main/index.html', open:true},
+    {name:'This Console (raw.githack)', url:'https://raw.githack.com/cantgetalonggta-png/grok-omega-console/main/index.html', open:true},
+    {name:'This Console (jsDelivr)', url:'https://cdn.jsdelivr.net/gh/cantgetalonggta-png/grok-omega-console@main/index.html', open:true},
+    {name:'openai-grok-mcp README', url:'https://raw.githubusercontent.com/cantgetalonggta-png/openai-grok-mcp/main/README.md', open:false},
+    {name:'llm-mcp-hub source', url:'https://raw.githubusercontent.com/cantgetalonggta-png/llm-mcp-hub/main/llm_mcp_hub.py', open:false},
+    {name:'GitHub omni-injector', url:'https://api.github.com/repos/cantgetalonggta-png/omni-injector', open:false},
+    {name:'GitHub llm-mcp-hub', url:'https://api.github.com/repos/cantgetalonggta-png/llm-mcp-hub', open:false},
+    {name:'GitHub grok-omega-console', url:'https://api.github.com/repos/cantgetalonggta-png/grok-omega-console', open:false},
+    {name:'GitHub openai-grok-mcp', url:'https://api.github.com/repos/cantgetalonggta-png/openai-grok-mcp', open:false}
   ];
 
   const LINKS = [
-    ['Omni-Injector Live','https://raw.githack.com/cantgetalonggta-png/omni-injector/main/index.html'],
-    ['Omni-Injector jsDelivr','https://cdn.jsdelivr.net/gh/cantgetalonggta-png/omni-injector@main/index.html'],
-    ['OpenAI MCP Repo','https://github.com/cantgetalonggta-png/openai-grok-mcp'],
-    ['LLM MCP Hub Repo','https://github.com/cantgetalonggta-png/llm-mcp-hub'],
-    ['Console Repo','https://github.com/cantgetalonggta-png/grok-omega-console'],
-    ['Ecosystem Drive','https://drive.google.com/drive/folders/1d48YCVzol7cG3mNPvCyFKXYnkXMLr7IL'],
-    ['EXTRACT ALL Drive','https://drive.google.com/drive/folders/1BJ_Dib-Y3em2f6ttt7WtbWj597va3aVn']
+    ['Omni-Injector LIVE','https://raw.githack.com/cantgetalonggta-png/omni-injector/main/index.html'],
+    ['Omni-Injector repo','https://github.com/cantgetalonggta-png/omni-injector'],
+    ['Console LIVE','https://raw.githack.com/cantgetalonggta-png/grok-omega-console/main/index.html'],
+    ['Console repo','https://github.com/cantgetalonggta-png/grok-omega-console'],
+    ['OpenAI MCP repo','https://github.com/cantgetalonggta-png/openai-grok-mcp'],
+    ['LLM MCP Hub repo','https://github.com/cantgetalonggta-png/llm-mcp-hub'],
+    ['Drive ecosystem','https://drive.google.com/drive/folders/1d48YCVzol7cG3mNPvCyFKXYnkXMLr7IL'],
+    ['Drive EXTRACT ALL','https://drive.google.com/drive/folders/1BJ_Dib-Y3em2f6ttt7WtbWj597va3aVn']
   ];
 
-  const TABS = [
-    ['home','Home'],['modules','Modules'],['mcp','MCP'],['inventory','Inventory'],['pipeline','Pipeline'],['links','Links']
-  ];
-
-  const nav = document.getElementById('nav');
-  TABS.forEach(([id,label],i)=>{
-    const b=document.createElement('button');
-    b.textContent=label; b.dataset.tab=id; if(i===0)b.classList.add('active');
-    b.onclick=()=>showTab(id);
-    nav.appendChild(b);
-  });
-
-  function showTab(id){
-    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-    document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active', b.dataset.tab===id));
-    document.getElementById('tab-'+id).classList.add('active');
-    log('tab → '+id);
+  const logEl = document.getElementById('log');
+  function log(msg, cls){
+    const line = document.createElement('div');
+    if(cls) line.className = cls;
+    line.textContent = new Date().toISOString().slice(11,19)+' '+msg;
+    logEl.insertBefore(line, logEl.firstChild);
   }
-  window.showTab=showTab;
 
-  document.querySelectorAll('[data-goto]').forEach(el=>el.addEventListener('click',()=>showTab(el.dataset.goto)));
-
-  const grid=document.getElementById('moduleGrid');
-  MODULES.forEach(m=>{
-    const d=document.createElement('div'); d.className='card';
-    const badge = m.status==='LIVE'?'b-ok':(m.status==='REPO'?'b-live':'b-warn');
-    d.innerHTML=`<h4>${m.name} <span class="badge ${badge}">${m.status}</span></h4><p>${m.desc}</p>
-      <a class="btn sec" href="${m.href}" target="_blank" rel="noopener">Open</a>
-      <button class="btn" data-ping="${m.href}">Health Ping</button>`;
-    grid.appendChild(d);
+  // tabs
+  document.getElementById('tabs').addEventListener('click', e=>{
+    const b=e.target.closest('button[data-p]'); if(!b) return;
+    document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    document.getElementById('p-'+b.dataset.p).classList.add('on');
   });
 
-  document.getElementById('linkGrid').innerHTML = LINKS.map(([n,u])=>
-    `<div class="card"><h4>${n}</h4><a href="${u}" target="_blank" rel="noopener">${u}</a></div>`).join('');
-
-  document.getElementById('moduleGrid').addEventListener('click', async (e)=>{
-    const btn=e.target.closest('[data-ping]'); if(!btn) return;
-    const url=btn.getAttribute('data-ping');
-    if(url==='#'){ log('ping self: OK'); return; }
-    log('ping '+url+' …');
-    try{
-      const r=await fetch(url,{method:'GET',mode:'no-cors'});
-      log('ping '+url+' → opaque/no-cors (browser) — treat as attempted');
-    }catch(err){ log('ping fail: '+err.message); }
-  });
-
-  document.getElementById('btnSelfTest').onclick=()=>{
-    let pass=0, total=0;
-    function check(name, cond){ total++; if(cond){pass++; log('PASS '+name);} else log('FAIL '+name); }
-    check('tabs', TABS.length===6);
-    check('modules', MODULES.length>=8);
-    check('nav', document.querySelectorAll('.nav button').length===6);
-    check('buttons', document.querySelectorAll('button').length>=10);
-    check('localStorage', typeof localStorage!=='undefined');
-    document.getElementById('kLive').textContent=String(MODULES.filter(m=>m.status==='LIVE').length);
-    log('SELF-TEST '+pass+'/'+total);
-    alert('Self-test: '+pass+'/'+total);
-  };
-
-  document.getElementById('btnGenMcp').onclick=()=>{
-    const path=document.getElementById('mcpPath').value.trim()||'/ABSOLUTE/PATH/llm_mcp_hub.py';
-    const cfg={mcpServers:{'llm-mcp-hub':{command:'python3',args:[path],env:{OPENAI_API_KEY:'',ANTHROPIC_API_KEY:'',XAI_API_KEY:'',GOOGLE_API_KEY:''}}}};
-    document.getElementById('mcpOut').textContent=JSON.stringify(cfg,null,2);
-    log('mcp config generated');
-  };
-  document.getElementById('btnCopyMcp').onclick=()=>{
-    navigator.clipboard.writeText(document.getElementById('mcpOut').textContent).then(()=>log('copied mcp json')).catch(e=>log(e.message));
-  };
-
-  const stages=['Alpha Ingest','Beta Map','Gamma Wire','Delta Heal','Epsilon Certify'];
-  let pipeRunning=false;
-  document.getElementById('btnRunPipe').onclick=async()=>{
-    if(pipeRunning)return; pipeRunning=true;
-    const el=document.getElementById('pipeLog'); el.textContent='// starting DAG\n';
-    for(const s of stages){
-      el.textContent += '→ '+s+' …\n';
-      await new Promise(r=>setTimeout(r,400+Math.random()*500));
-      el.textContent += '  OK '+s+'\n';
+  // status table
+  const tbody = document.getElementById('statusBody');
+  ENDPOINTS.forEach((ep,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = '<td>'+ep.name+'</td><td style="word-break:break-all;font-size:11px">'+ep.url+'</td><td id="res'+i+'">—</td><td></td>';
+    const td=tr.lastChild;
+    if(ep.open){
+      const a=document.createElement('a'); a.className='btn'; a.href=ep.url; a.target='_blank'; a.rel='noopener'; a.textContent='OPEN';
+      td.appendChild(a);
     }
-    el.textContent += 'CERTIFIED · swarm consensus stable\n';
-    pipeRunning=false; log('pipeline complete');
-  };
-  document.getElementById('btnResetPipe').onclick=()=>{ document.getElementById('pipeLog').textContent='// idle'; log('pipeline reset'); };
+    const btn=document.createElement('button'); btn.className='act sec'; btn.textContent='CHECK';
+    btn.onclick=()=>checkOne(i);
+    td.appendChild(btn);
+    tbody.appendChild(tr);
+  });
 
-  document.getElementById('kLive').textContent=String(MODULES.filter(m=>m.status==='LIVE').length);
-  log('Grok-Omega console boot OK · modules='+MODULES.length);
+  async function checkOne(i){
+    const ep=ENDPOINTS[i];
+    const cell=document.getElementById('res'+i);
+    cell.textContent='…';
+    cell.className='';
+    const t0=performance.now();
+    try{
+      const r=await fetch(ep.url, {method:'GET', cache:'no-store'});
+      const ms=Math.round(performance.now()-t0);
+      const ok=r.ok;
+      cell.textContent=(ok?'HTTP '+r.status+' OK':'HTTP '+r.status)+' · '+ms+'ms';
+      cell.className=ok?'ok':'fail';
+      log(ep.name+': HTTP '+r.status+' '+ms+'ms', ok?'ok':'fail');
+      return ok;
+    }catch(err){
+      cell.textContent='ERR '+err.message;
+      cell.className='fail';
+      log(ep.name+': '+err.message,'fail');
+      return false;
+    }
+  }
+
+  document.getElementById('btnCheckAll').onclick=async()=>{
+    log('=== RUN ALL LIVE CHECKS ===','warn');
+    let ok=0;
+    for(let i=0;i<ENDPOINTS.length;i++){
+      if(await checkOne(i)) ok++;
+    }
+    log('DONE '+ok+'/'+ENDPOINTS.length+' reachable','ok');
+    alert('Live checks: '+ok+'/'+ENDPOINTS.length+' OK');
+  };
+  document.getElementById('btnClearLog').onclick=()=>{ logEl.textContent='// cleared'; };
+
+  document.getElementById('reloadFrame').onclick=()=>{
+    const f=document.getElementById('injFrame');
+    f.src=f.src.split('?')[0]+'?t='+Date.now();
+  };
+
+  // real APIs
+  const out=document.getElementById('apiOut');
+  document.getElementById('p-apis').addEventListener('click', async e=>{
+    const b=e.target.closest('[data-api]'); if(!b) return;
+    const kind=b.dataset.api;
+    out.textContent='Fetching…';
+    try{
+      if(kind==='httpbin'){
+        const r=await fetch('https://httpbin.org/get');
+        out.textContent='HTTP '+r.status+'\n'+await r.text();
+      } else if(kind==='ip'){
+        const r=await fetch('https://api.ipify.org?format=json');
+        out.textContent='HTTP '+r.status+'\n'+await r.text();
+      } else if(kind==='github'){
+        const r=await fetch('https://api.github.com/repos/cantgetalonggta-png/omni-injector');
+        const j=await r.json();
+        out.textContent='HTTP '+r.status+'\nname='+j.full_name+'\nprivate='+j.private+'\nhtml_url='+j.html_url+'\ndefault_branch='+j.default_branch;
+      } else if(kind==='jsdelivr'){
+        const r=await fetch('https://cdn.jsdelivr.net/gh/cantgetalonggta-png/omni-injector@main/index.html');
+        const t=await r.text();
+        out.textContent='HTTP '+r.status+'\nbytes='+t.length+'\nhead=\n'+t.slice(0,300);
+      } else if(kind==='xai'){
+        const r=await fetch('https://api.x.ai/v1/models');
+        const t=await r.text();
+        out.textContent='HTTP '+r.status+' (401 without key means endpoint is LIVE)\n'+t.slice(0,500);
+      } else if(kind==='openai'){
+        const key=document.getElementById('oaKey').value.trim();
+        if(!key){ out.textContent='Paste a key first (stays in this tab only).'; return; }
+        const r=await fetch('https://api.openai.com/v1/models',{headers:{Authorization:'Bearer '+key}});
+        const t=await r.text();
+        out.textContent='HTTP '+r.status+'\n'+t.slice(0,1500);
+      }
+      log('API '+kind+' done','ok');
+    }catch(err){
+      out.textContent='ERROR: '+err.message;
+      log('API '+kind+' '+err.message,'fail');
+    }
+  });
+
+  // copy
+  document.getElementById('p-mcp').addEventListener('click', e=>{
+    const b=e.target.closest('[data-copy]'); if(!b) return;
+    const id=b.dataset.copy;
+    navigator.clipboard.writeText(document.getElementById(id).value).then(()=>alert('Copied')).catch(err=>alert(err.message));
+  });
+
+  document.getElementById('btnMcpRaw').onclick=async()=>{
+    const urls=[
+      'https://raw.githubusercontent.com/cantgetalonggta-png/openai-grok-mcp/main/openai_grok_connector.py',
+      'https://raw.githubusercontent.com/cantgetalonggta-png/llm-mcp-hub/main/llm_mcp_hub.py'
+    ];
+    let s='';
+    for(const u of urls){
+      try{
+        const r=await fetch(u);
+        const t=await r.text();
+        s+='=== '+u+'\nHTTP '+r.status+' bytes='+t.length+'\n'+t.slice(0,200)+'...\n\n';
+      }catch(err){ s+='=== '+u+'\nERR '+err.message+'\n\n'; }
+    }
+    document.getElementById('mcpRaw').textContent=s;
+  };
+
+  // links
+  const lb=document.getElementById('linkBody');
+  LINKS.forEach(([n,u])=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td>'+n+'</td><td style="word-break:break-all;font-size:11px">'+u+'</td><td><a class="btn" href="'+u+'" target="_blank" rel="noopener">OPEN</a></td>';
+    lb.appendChild(tr);
+  });
+
+  log('boot complete — use RUN ALL LIVE CHECKS','ok');
 })();
 </script>
 </body>
